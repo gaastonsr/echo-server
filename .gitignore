@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# TLS certs
+cert/*
+
+# Git
+node_modules
