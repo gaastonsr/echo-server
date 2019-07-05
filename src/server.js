@@ -23,7 +23,10 @@ app.all('*', (request, response) => {
     return `${name}: ${value}`
   }).join('\n')
 
-  response.status(200).send(`<pre>${headers}\n\n${request.body}</pre>`)
+  const echo = `${headers}\n\n${request.body}`
+
+  console.log(echo)
+  response.status(200).send(`<pre>${echo}</pre>`)
 });
 
 const server = https.createServer({
