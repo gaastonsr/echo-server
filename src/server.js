@@ -60,5 +60,5 @@ function getServer(protocol) {
 }
 
 getServer(PROTOCOL).listen({ port: PORT, host: HOST }, () => {
-  console.log(`🔒 ${protocol} server ready at https://${host}:${port}/`)
+  console.log(`🔒 ${PROTOCOL} server ready at https://${host}:${port}/`)
 })
