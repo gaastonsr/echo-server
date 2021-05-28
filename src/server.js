@@ -7,7 +7,8 @@ const express = require('express')
 const concat = require('concat-stream')
 
 // Constants.
-const port = 8001
+const port = process.env.PORT || 8001
+const host = process.env.HOST || '127.0.0.1'
 const app = express()
 
 app.use(function(request, response, next){
@@ -34,6 +35,9 @@ const server = https.createServer({
   cert: fs.readFileSync('./cert/server.cert')
 }, app)
 
-server.listen(port, () => {
-  console.log(`🔒 https echo server ready at https://localhost:${port}/`)
+server.listen({
+  port,
+  host,
+}, () => {
+  console.log(`🔒 https echo server ready at https://${host}:${port}/`)
 })
