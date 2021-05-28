@@ -1,14 +1,24 @@
 // Native.
 const fs = require('fs')
 const https = require('https')
+const http = require('http')
+const assert = require('assert')
 
 // npm.
 const express = require('express')
 const concat = require('concat-stream')
 
 // Constants.
-const port = process.env.PORT || 8001
-const host = process.env.HOST || '127.0.0.1'
+const ALLOWED_PROTOCOLS = new Set(['http', 'https'])
+const PROTOCOL = process.env.PROTOCOL || 'http'
+const PORT = process.env.PORT || 8001
+const HOST = process.env.HOST || '127.0.0.1'
+
+assert(
+  ALLOWED_PROTOCOLS.has(PROTOCOL),
+  `Protocol "${PROTOCOL}" is invalid. Valid options: ${JSON.stringify(Array.from(ALLOWED_PROTOCOLS))}.`,
+)
+
 const app = express()
 
 app.use(function(request, response, next){
@@ -30,14 +40,25 @@ app.all('*', (request, response) => {
   response.status(200).send(`<pre>${echo}</pre>`)
 });
 
-const server = https.createServer({
-  key: fs.readFileSync('./cert/server.key'),
-  cert: fs.readFileSync('./cert/server.cert')
-}, app)
+function getHTTPServer() {
+  return http.createServer({}, app)
+}
 
-server.listen({
-  port,
-  host,
-}, () => {
-  console.log(`🔒 https echo server ready at https://${host}:${port}/`)
+function getHTTPSServer() {
+  return https.createServer({
+    key: fs.readFileSync('./cert/server.key'),
+    cert: fs.readFileSync('./cert/server.cert')
+  }, app)
+}
+
+function getServer(protocol) {
+  switch (protocol) {
+    case 'http': return getHTTPServer()
+    case 'https': return getHTTPSServer()
+    default: throw new Error(`Invalid protocol "${protocol}"`)
+  }
+}
+
+getServer(PROTOCOL).listen({ port: PORT, host: HOST }, () => {
+  console.log(`🔒 ${protocol} server ready at https://${host}:${port}/`)
 })
